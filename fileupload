@@ -2,8 +2,8 @@ const aws = require("aws-sdk");
 
 module.exports = {
   signUrl: signUrl,
-  listObjects: listObjects,
   uploadFile: uploadFile
+  /...
 };
 
 const s3 = new aws.S3();
@@ -41,8 +41,8 @@ function uploadFile(fileName, body) {
   return new Promise((resolve, reject) => {
     const params = {
       Body: body,
-      Bucket: "sabio-training",
-      Key: `C50/${fileName}`
+      Bucket: "bucketname",
+      Key: `bucketname/${fileName}`
     };
 
     s3.upload(params, function(err, data) {
@@ -53,4 +53,4 @@ function uploadFile(fileName, body) {
       }
     });
   });
-}
+}/
