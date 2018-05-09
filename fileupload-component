@@ -1,0 +1,89 @@
+import React from "react";
+import Dropzone from "react-dropzone";
+import * as fileService from "../services/fileupload.service";
+
+class UploadFile extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      files: {},
+      signedUrl: {},
+      upload: false,
+      originalMsg: <span>Click or drop files here to upload...</span>,
+      statusMsg: ""
+    };
+
+    this._onDrop = this._onDrop.bind(this);
+    this.uploadPhoto = this.uploadPhoto.bind(this);
+    this.signedUrl = null;
+  }
+
+  _onDrop(files) {
+    console.log(files);
+    var file = files[0];
+    fileService
+      .sign(file)
+      .then(signedUrl => {
+        this.setState({
+          signedUrl,
+          files: file,
+          upload: true,
+        });
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  }
+
+  uploadPhoto() {
+    fileService
+      .save(this.state.signedUrl, this.state.files)
+      .then(response => {
+        let urls = response.config.url.split("?");
+        let url = urls[0];
+        let event = {
+          target: {
+            value: url,
+            name: this.props.name
+          }
+        };
+        this.props.onUpload(event);
+      })
+
+      .catch(err => {
+        console.log(err);
+      });
+  }
+
+  render() {
+
+    const style = {
+      height: "100px",
+      weight: "100px"
+    };
+    
+    return (
+      <div>
+        <Dropzone
+          accept="image/*"
+          multiple={false}
+          onDrop={this._onDrop}
+          type="file"
+        >
+          <img style={style} src={this.state.files.preview} />
+          <p>{this.state.files.name}</p>
+        </Dropzone>
+        <button
+          className="btn btn-primary"
+          type="button"
+          onClick={this.uploadPhoto}
+          disabled={!this.state.upload}
+        >
+          Upload
+        </button>
+      </div>
+    );
+  }
+}
+
+export default UploadFile;
